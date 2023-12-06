@@ -1,0 +1,6 @@
+!pip install matplotlib
+!pip install tabulate
+!pip install pydub
+!pip install sounddevice
+!pip install pya
+!pip install astronify
