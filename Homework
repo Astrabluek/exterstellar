@@ -4,3 +4,145 @@
 !pip install sounddevice
 !pip install pya
 !pip install astronify
+!apt install -qq -y portaudio19-dev
+!pip install pyaudio
+!pip install sonipy
+
+import matplotlib.pyplot as plt
+import math
+import numpy as np
+from tabulate import tabulate
+import matplotlib.pyplot as plt
+import numpy as np
+from pydub import AudioSegment
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import numpy as np
+import random
+from pydub import AudioSegment
+from IPython.display import HTML
+
+def calculate_free_fall(height, velocity):
+    acceleration = 9.8
+    time = math.sqrt(2 * height/acceleration)
+    velocity_f = velocity + acceleration*time
+    return time, velocity_f
+
+input_D = int(input("How many inputs are you willing to matimaticulate? -- "))
+
+time_list = []
+velocity_f_list = []
+position_list = []
+
+print("ID\t \t\tHeight_i \t\tVelocity_i\t\tTime\t Velocity_f\tPosition")
+
+
+for i in range(input_D):
+    print(f"ID {i+1}:")
+
+    height = float(input("Enter the initial height (in meters): "))
+    velocity = float(input("Enter the initial velocity (in m/s): "))
+
+    fall_time, velocity_f = calculate_free_fall(height, velocity)
+    position = height - 0.5 * 9.8 * fall_time**2 #hence; s = h-1/2 at^2
+
+    time_list.append(fall_time)
+    velocity_f_list.append(velocity_f)
+    position_list.append(position)
+
+    print(f"{i+1}\t\t\t{height:.2f} m\t\t{velocity:.2f} m/s\t{fall_time:.2f} s\t{velocity_f:.2f} m/s\t\t{position:.2f} m")
+
+sorted_data = sorted(zip(time_list, velocity_f_list, position_list), key=lambda x: x[0])
+time_list, velocity_f_list, position_list = zip(*sorted_data)
+
+plt.figure(figsize=(10, 8))
+
+plt.subplot(3, 1, 1)
+plt.plot(time_list, velocity_f_list, linestyle='-', marker='x', color='b')
+plt.title('Free Fall: Time vs Final Velocity')
+plt.xlabel('Time (s)')
+plt.ylabel('Final Velocity (m/s)')
+plt.grid(True)
+
+plt.subplot(3, 1, 2)
+plt.plot(time_list, position_list, linestyle='-', marker='', color='r')
+plt.title('Free Fall: Time vs Position')
+plt.xlabel('Time (s)')
+plt.ylabel('Position (m)')
+plt.grid(True)
+
+plt.tight_layout()
+
+sorted_data = sorted(zip(time_list, velocity_f_list, position_list), key=lambda x: x[0])
+time_list, velocity_f_list, position_list = zip(*sorted_data)
+
+fig, axs = plt.subplots(3, 1, figsize=(10, 8))
+
+def update(frame):
+    axs[0].clear()
+    axs[1].clear()
+
+    for i in range(frame + 1):
+        axs[0].plot(time_list[i], velocity_f_list[i], 'bx-', label='Final Velocity')
+        axs[1].plot(time_list[i], position_list[i], 'ro-', label='Position')
+
+    axs[0].set_title('Free Fall: Time vs Final Velocity')
+    axs[0].set_xlabel('Time (s)')
+    axs[0].set_ylabel('Final Velocity (m/s)')
+
+    axs[1].set_title('Free Fall: Time vs Position')
+    axs[1].set_xlabel('Time (s)')
+    axs[1].set_ylabel('Position (m)')
+
+
+frames = len(time_list)
+animation = FuncAnimation(fig, update, frames=frames, interval=1000, repeat=False)
+
+
+
+HTML(animation.to_jshtml())
+
+
+
+'''
+
+def create_audio_segment(array, sample_rate=44100):
+    return AudioSegment.from_array(array, sample_rate=sample_rate, channels=1)
+
+def generate_sine_wave(frequency, duration, sample_rate=44100):
+    time = np.arange(int(duration * sample_rate)) / sample_rate
+    wave = np.sin(2 * np.pi * frequency * time)
+    return create_audio_segment(wave, sample_rate)
+
+def generate_mallet_sound(duration, sample_rate=44100):
+    num_samples = int(duration * sample_rate)
+    envelope = np.concatenate((np.linspace(0, 1, num_samples // 2), np.linspace(1, 0, num_samples // 2)))
+    wave = envelope * np.random.random() * 0.2
+    return create_audio_segment(wave, sample_rate)
+
+def generate_bass_sound(duration, frequency=50, sample_rate=44100):
+    time = np.arange(int(duration * sample_rate)) / sample_rate
+    wave = np.sin(2 * np.pi * frequency * time)
+    return create_audio_segment(wave, sample_rate)
+
+time_list = [2, 4, 6, 8, 10]
+velocity_f_list = [10, 19.6, 28.8, 37.6, 46.0]
+position_list = [20, 39.2, 57.6, 74.4, 90.0]
+
+beat = AudioSegment.empty()
+
+for velocity, position, in zip(velocity_f_list, position_list):
+
+    frequency = 440 + velocity * 100
+
+    velocity_sound = generate_sine_wave(frequency, 0.5)
+    position_sound = generate_mallet_sound(1.0)
+
+    chord = velocity_sound.overlay(position_sound)
+    chord = chord.overlay(acceleration_sound)
+
+    beat += chord
+
+beat.export("sonified_data.wav", format="wav")
+
+'''
